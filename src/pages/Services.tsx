@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Laptop, Monitor, Printer, Camera, ShoppingBag } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import logo from '@/assets/logo.png';
+import PageHeader from '@/components/PageHeader';
 
 const services = [
   {
@@ -43,17 +43,7 @@ const fade = { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0 }
 export default function Services() {
   return (
     <>
-      <section className="section-alt section-padding">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div {...fade} className="flex flex-col items-center">
-            <img src={logo} alt="Omniscience Computer" className="h-16 w-16 mb-4" />
-            <h1 className="text-4xl font-bold text-foreground">Our Services</h1>
-            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-              Comprehensive tech solutions for individuals and businesses
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHeader title="Our Services" description="Comprehensive tech solutions for individuals and businesses" />
 
       <section className="section-padding">
         <div className="container mx-auto px-4 max-w-3xl">

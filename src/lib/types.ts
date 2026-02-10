@@ -8,3 +8,10 @@ export interface Product {
   images: string[];
   createdAt: string;
 }
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  text: string;
+}
