@@ -22,8 +22,10 @@ function Navbar() {
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 min-w-0">
           <img src={logo} alt="Omniscience Computer" className="h-11 w-11 shrink-0" />
-          <span className="text-xl font-bold text-primary shrink-0">Omniscience</span>
-          <span className="text-xl font-light text-foreground hidden sm:inline">Computer</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 leading-tight">
+            <span className="text-lg sm:text-xl font-bold text-primary">Omniscience</span>
+            <span className="text-xs sm:text-xl font-light text-foreground -mt-0.5 sm:mt-0">Computer</span>
+          </div>
         </Link>
 
         {/* Desktop nav */}
