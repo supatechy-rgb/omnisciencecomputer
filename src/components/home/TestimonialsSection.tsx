@@ -1,25 +1,12 @@
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
-
-const testimonials = [
-  {
-    name: 'Adebayo Johnson',
-    text: 'Omniscience Computer fixed my laptop in record time. Very professional and honest service. Highly recommended!',
-    role: 'Business Owner',
-  },
-  {
-    name: 'Grace Okonkwo',
-    text: 'I bought a printer from them and the after-sales support has been amazing. They truly care about their customers.',
-    role: 'Office Manager',
-  },
-  {
-    name: 'Emmanuel Adekunle',
-    text: 'The CCTV installation was done perfectly. The team was professional and the system works flawlessly. Great service!',
-    role: 'Property Manager',
-  },
-];
+import { getTestimonials } from '@/lib/testimonialStore';
 
 export default function TestimonialsSection() {
+  const testimonials = getTestimonials();
+
+  if (testimonials.length === 0) return null;
+
   return (
     <section className="section-padding">
       <div className="container mx-auto px-4">
@@ -30,7 +17,7 @@ export default function TestimonialsSection() {
         <div className="grid gap-6 md:grid-cols-3">
           {testimonials.map((t, i) => (
             <motion.div
-              key={t.name}
+              key={t.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

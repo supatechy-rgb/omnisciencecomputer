@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Heart, Target, Eye, Star } from 'lucide-react';
-import logo from '@/assets/logo.png';
+import PageHeader from '@/components/PageHeader';
 
 const values = [
   { icon: Heart, title: 'Integrity', desc: 'We operate with complete honesty and transparency in all we do.' },
@@ -14,18 +14,7 @@ const fade = { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0 }
 export default function About() {
   return (
     <>
-      {/* Header */}
-      <section className="section-alt section-padding">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div {...fade} className="flex flex-col items-center">
-            <img src={logo} alt="Omniscience Computer" className="h-16 w-16 mb-4" />
-            <h1 className="text-4xl font-bold text-foreground">About Us</h1>
-            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-              Learn about Omniscience Computer — our story, mission, and commitment to serving you.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHeader title="About Us" description="Learn about Omniscience Computer — our story, mission, and commitment to serving you." />
 
       {/* Story */}
       <section className="section-padding">

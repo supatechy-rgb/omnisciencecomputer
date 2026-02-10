@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
 import { getProducts } from '@/lib/productStore';
+import PageHeader from '@/components/PageHeader';
 
 export default function Products() {
   const [filter, setFilter] = useState<'all' | 'available'>('all');
@@ -10,14 +10,7 @@ export default function Products() {
 
   return (
     <>
-      <section className="section-alt section-padding">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-4xl font-bold text-foreground">Our Products</h1>
-            <p className="mt-3 text-muted-foreground">Quality tech products at competitive prices</p>
-          </motion.div>
-        </div>
-      </section>
+      <PageHeader title="Our Products" description="Quality tech products at competitive prices" />
 
       <section className="section-padding">
         <div className="container mx-auto px-4">
