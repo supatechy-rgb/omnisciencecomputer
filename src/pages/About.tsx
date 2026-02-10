@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Heart, Target, Eye, Star } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 const values = [
   { icon: Heart, title: 'Integrity', desc: 'We operate with complete honesty and transparency in all we do.' },
@@ -16,7 +17,8 @@ export default function About() {
       {/* Header */}
       <section className="section-alt section-padding">
         <div className="container mx-auto px-4 text-center">
-          <motion.div {...fade}>
+          <motion.div {...fade} className="flex flex-col items-center">
+            <img src={logo} alt="Omniscience Computer" className="h-16 w-16 mb-4" />
             <h1 className="text-4xl font-bold text-foreground">About Us</h1>
             <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
               Learn about Omniscience Computer — our story, mission, and commitment to serving you.
