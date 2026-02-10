@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import logo from '@/assets/logo.png';
 
 const contactInfo = [
   { icon: Phone, label: 'Phone', value: '08035026950 / 09123043159' },
@@ -35,7 +36,8 @@ export default function Contact() {
     <>
       <section className="section-alt section-padding">
         <div className="container mx-auto px-4 text-center">
-          <motion.div {...fade}>
+          <motion.div {...fade} className="flex flex-col items-center">
+            <img src={logo} alt="Omniscience Computer" className="h-16 w-16 mb-4" />
             <h1 className="text-4xl font-bold text-foreground">Contact Us</h1>
             <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
               Have a question or need our services? We'd love to hear from you.
