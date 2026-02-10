@@ -21,7 +21,7 @@ function Navbar() {
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Omniscience Computer" className="h-9 w-9" />
+          <img src={logo} alt="Omniscience Computer" className="h-11 w-11" />
           <span className="text-xl font-bold text-primary">Omniscience</span>
           <span className="text-xl font-light text-foreground">Computer</span>
         </Link>
