@@ -1,0 +1,10 @@
+export interface Product {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  bonusPrice?: number;
+  status: 'available' | 'sold' | 'not-in-stock';
+  images: string[];
+  createdAt: string;
+}
