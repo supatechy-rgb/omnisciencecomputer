@@ -20,10 +20,10 @@ function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Omniscience Computer" className="h-11 w-11" />
-          <span className="text-xl font-bold text-primary">Omniscience</span>
-          <span className="text-xl font-light text-foreground">Computer</span>
+        <Link to="/" className="flex items-center gap-2 min-w-0">
+          <img src={logo} alt="Omniscience Computer" className="h-11 w-11 shrink-0" />
+          <span className="text-xl font-bold text-primary shrink-0">Omniscience</span>
+          <span className="text-xl font-light text-foreground hidden sm:inline">Computer</span>
         </Link>
 
         {/* Desktop nav */}
