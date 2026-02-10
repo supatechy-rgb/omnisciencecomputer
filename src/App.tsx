@@ -17,26 +17,30 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function WithLayout({ children }: { children: React.ReactNode }) {
+  return <Layout>{children}</Layout>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          {/* Admin - no header/footer */}
+          <Route path="/admin" element={<Admin />} />
+          {/* All other pages with layout */}
+          <Route path="/" element={<WithLayout><Index /></WithLayout>} />
+          <Route path="/about" element={<WithLayout><About /></WithLayout>} />
+          <Route path="/services" element={<WithLayout><Services /></WithLayout>} />
+          <Route path="/products" element={<WithLayout><Products /></WithLayout>} />
+          <Route path="/products/:id" element={<WithLayout><ProductDetail /></WithLayout>} />
+          <Route path="/contact" element={<WithLayout><Contact /></WithLayout>} />
+          <Route path="/privacy" element={<WithLayout><Privacy /></WithLayout>} />
+          <Route path="/terms" element={<WithLayout><Terms /></WithLayout>} />
+          <Route path="*" element={<WithLayout><NotFound /></WithLayout>} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
