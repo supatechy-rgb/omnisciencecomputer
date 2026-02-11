@@ -10,37 +10,66 @@ const services = [
   { icon: ShoppingBag, title: 'Sales & Accessories', desc: 'Quality laptops, printers, and accessories at competitive prices.' },
 ];
 
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 80 } },
+};
+
 export default function ServicesPreview() {
   return (
     <section className="section-padding">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
           <h2 className="text-3xl font-bold text-foreground">Our Services</h2>
           <p className="text-muted-foreground mt-2 max-w-md mx-auto">Professional tech solutions tailored to your needs</p>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {services.map((s, i) => (
+        </motion.div>
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {services.map((s) => (
             <motion.div
               key={s.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="rounded-xl border bg-card p-6 text-center transition-shadow hover:shadow-md"
+              variants={item}
+              whileHover={{ y: -6, boxShadow: '0 12px 40px -15px hsl(340 82% 52% / 0.2)' }}
+              className="rounded-xl border bg-card p-6 text-center transition-colors cursor-default"
             >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary">
+              <motion.div
+                whileHover={{ scale: 1.15, rotate: -5 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+                className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary"
+              >
                 <s.icon className="h-7 w-7 text-primary" />
-              </div>
+              </motion.div>
               <h3 className="font-semibold text-card-foreground">{s.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
             </motion.div>
           ))}
-        </div>
-        <div className="mt-10 text-center">
-          <Button asChild variant="outline">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          className="mt-10 text-center"
+        >
+          <Button asChild variant="outline" className="hover-scale">
             <Link to="/services">View All Services</Link>
           </Button>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

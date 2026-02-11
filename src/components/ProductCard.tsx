@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Product } from '@/lib/types';
@@ -13,12 +14,16 @@ export default function ProductCard({ product }: { product: Product }) {
   const unavailable = isSold || isOutOfStock;
 
   return (
-    <div className="group rounded-xl border bg-card overflow-hidden transition-shadow hover:shadow-lg">
+    <motion.div
+      whileHover={{ y: -4 }}
+      transition={{ type: 'spring', stiffness: 200 }}
+      className="group rounded-xl border bg-card overflow-hidden transition-shadow hover:shadow-lg"
+    >
       <div className="relative aspect-square overflow-hidden bg-muted">
         <img
           src={product.images[0] || '/placeholder.svg'}
           alt={product.title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
         />
         {isSold && (
@@ -36,12 +41,12 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="text-sm text-muted-foreground line-through">{formatPrice(product.bonusPrice)}</span>
           )}
         </div>
-        <Button asChild className="mt-3 w-full" size="sm" disabled={unavailable}>
+        <Button asChild className="mt-3 w-full hover-scale" size="sm" disabled={unavailable}>
           <Link to={`/products/${product.id}`}>
             {unavailable ? 'Unavailable' : 'View Product'}
           </Link>
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
