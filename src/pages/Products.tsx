@@ -1,11 +1,17 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import ProductCard from '@/components/ProductCard';
-import { getProducts } from '@/lib/productStore';
+import { getProducts, Product } from '@/lib/productStore';
 import PageHeader from '@/components/PageHeader';
 
 export default function Products() {
   const [filter, setFilter] = useState<'all' | 'available'>('all');
-  const products = useMemo(() => getProducts(), []);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getProducts().then((p) => { setProducts(p); setLoading(false); });
+  }, []);
+
   const filtered = filter === 'all' ? products : products.filter((p) => p.status === 'available');
 
   return (
@@ -33,7 +39,9 @@ export default function Products() {
             </button>
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (
+            <p className="text-center text-muted-foreground py-12">Loading products...</p>
+          ) : filtered.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">No products found.</p>
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

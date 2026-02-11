@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { getProductById } from '@/lib/productStore';
+import { getProductById, Product } from '@/lib/productStore';
 
 function formatPrice(price: number) {
   return '₦' + price.toLocaleString();
@@ -15,9 +15,22 @@ function formatPrice(price: number) {
 export default function BuyProduct() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const product = id ? getProductById(id) : null;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      getProductById(id).then((p) => { setProduct(p); setLoading(false); });
+    } else {
+      setLoading(false);
+    }
+  }, [id]);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center bg-muted"><p className="text-muted-foreground">Loading...</p></div>;
+  }
 
   if (!product) {
     return (
@@ -36,13 +49,13 @@ export default function BuyProduct() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    setSubmitting(true);
 
     // TODO: Replace with Formspree endpoint
     // const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', { method: 'POST', body: new FormData(e.currentTarget) });
 
     setTimeout(() => {
-      setLoading(false);
+      setSubmitting(false);
       toast({
         title: 'Order Submitted!',
         description: 'Thank you for your order. Our team will reach out to you shortly.',
@@ -53,7 +66,6 @@ export default function BuyProduct() {
 
   return (
     <div className="min-h-screen bg-muted">
-      {/* Sticky header */}
       <div className="sticky top-0 z-10 flex items-center gap-3 bg-card border-b px-4 py-3">
         <button onClick={() => navigate(-1)} className="p-1">
           <ArrowLeft className="h-5 w-5 text-foreground" />
@@ -62,7 +74,6 @@ export default function BuyProduct() {
       </div>
 
       <div className="p-4 max-w-lg mx-auto space-y-5">
-        {/* Product summary */}
         <div className="flex gap-3 p-3 rounded-xl bg-card border">
           <img src={image} alt={product.title} className="h-20 w-20 rounded-lg object-cover shrink-0" />
           <div className="min-w-0 flex flex-col justify-center">
@@ -71,7 +82,6 @@ export default function BuyProduct() {
           </div>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input type="hidden" name="product_name" value={product.title} />
           <input type="hidden" name="product_price" value={product.price} />
@@ -96,8 +106,8 @@ export default function BuyProduct() {
             <Textarea id="buy-note" name="extra_note" placeholder="Any special requests, preferred delivery time, etc." rows={3} maxLength={500} />
           </div>
           <div className="pt-2 pb-6">
-            <Button type="submit" className="w-full h-12 text-base" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Order'}
+            <Button type="submit" className="w-full h-12 text-base" disabled={submitting}>
+              {submitting ? 'Submitting...' : 'Submit Order'}
             </Button>
           </div>
         </form>

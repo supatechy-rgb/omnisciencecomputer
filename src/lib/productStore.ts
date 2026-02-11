@@ -1,98 +1,110 @@
-import { Product } from './types';
+import { supabase } from '@/integrations/supabase/client';
 
-const STORAGE_KEY = 'omniscience-products';
-
-const seedProducts: Product[] = [
-  {
-    id: '1',
-    title: 'HP EliteBook 840 G5',
-    description: 'Powerful business laptop featuring Intel Core i5 8th Gen processor, 8GB DDR4 RAM, 256GB SSD, 14-inch Full HD display. Perfect for professionals and students alike. Comes with Windows 11 Pro pre-installed.',
-    price: 250000,
-    bonusPrice: 280000,
-    status: 'available',
-    images: ['/products/laptop.jpg'],
-    createdAt: '2025-01-15T10:00:00Z',
-  },
-  {
-    id: '2',
-    title: 'Epson EcoTank L3250 Printer',
-    description: 'All-in-one wireless inkjet printer with high-capacity ink tank system. Print, scan, and copy with ultra-low cost per page. Wi-Fi enabled for easy wireless printing from any device.',
-    price: 120000,
-    status: 'available',
-    images: ['/products/printer.jpg'],
-    createdAt: '2025-01-20T10:00:00Z',
-  },
-  {
-    id: '3',
-    title: 'Hikvision 4-Channel CCTV Kit',
-    description: 'Complete CCTV surveillance system with 4 HD cameras, DVR recorder, 1TB hard drive, cables, and power supply. Night vision up to 20m. Mobile app for remote viewing.',
-    price: 185000,
-    bonusPrice: 210000,
-    status: 'available',
-    images: ['/products/cctv.jpg'],
-    createdAt: '2025-02-01T10:00:00Z',
-  },
-  {
-    id: '4',
-    title: 'Computer Accessories Bundle',
-    description: 'Essential accessories pack including wireless keyboard and mouse combo, USB headset with microphone, USB hub, and premium HDMI cable. Compatible with all laptops and desktops.',
-    price: 35000,
-    status: 'available',
-    images: ['/products/accessories.jpg'],
-    createdAt: '2025-02-05T10:00:00Z',
-  },
-];
-
-function initStore(): Product[] {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(seedProducts));
-    return seedProducts;
-  }
-  return JSON.parse(stored);
+export interface Product {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  bonusPrice?: number;
+  status: 'available' | 'sold' | 'not-in-stock';
+  images: string[];
+  createdAt: string;
 }
 
-export function getProducts(): Product[] {
-  return initStore();
-}
-
-export function getProductById(id: string): Product | null {
-  const products = getProducts();
-  return products.find((p) => p.id === id) || null;
-}
-
-export function getRecentProducts(count = 4): Product[] {
-  return getProducts()
-    .filter((p) => p.status === 'available')
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, count);
-}
-
-export function addProduct(product: Omit<Product, 'id' | 'createdAt'>): Product {
-  const products = getProducts();
-  const newProduct: Product = {
-    ...product,
-    id: Date.now().toString(),
-    createdAt: new Date().toISOString(),
+function mapRow(row: any): Product {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    price: row.price,
+    bonusPrice: row.bonus_price ?? undefined,
+    status: row.status,
+    images: row.images ?? [],
+    createdAt: row.created_at,
   };
-  products.push(newProduct);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-  return newProduct;
 }
 
-export function updateProduct(id: string, updates: Partial<Omit<Product, 'id' | 'createdAt'>>): Product | null {
-  const products = getProducts();
-  const index = products.findIndex((p) => p.id === id);
-  if (index === -1) return null;
-  products[index] = { ...products[index], ...updates };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-  return products[index];
+export async function getProducts(): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(mapRow);
 }
 
-export function deleteProduct(id: string): boolean {
-  const products = getProducts();
-  const filtered = products.filter((p) => p.id !== id);
-  if (filtered.length === products.length) return false;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-  return true;
+export async function getProductById(id: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? mapRow(data) : null;
+}
+
+export async function getRecentProducts(count = 4): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('status', 'available')
+    .order('created_at', { ascending: false })
+    .limit(count);
+  if (error) throw error;
+  return (data ?? []).map(mapRow);
+}
+
+export async function addProduct(product: Omit<Product, 'id' | 'createdAt'>): Promise<Product> {
+  const { data, error } = await supabase
+    .from('products')
+    .insert({
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      bonus_price: product.bonusPrice ?? null,
+      status: product.status,
+      images: product.images,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return mapRow(data);
+}
+
+export async function updateProduct(id: string, updates: Partial<Omit<Product, 'id' | 'createdAt'>>): Promise<Product | null> {
+  const row: any = {};
+  if (updates.title !== undefined) row.title = updates.title;
+  if (updates.description !== undefined) row.description = updates.description;
+  if (updates.price !== undefined) row.price = updates.price;
+  if (updates.bonusPrice !== undefined) row.bonus_price = updates.bonusPrice;
+  if (updates.status !== undefined) row.status = updates.status;
+  if (updates.images !== undefined) row.images = updates.images;
+
+  const { data, error } = await supabase
+    .from('products')
+    .update(row)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data ? mapRow(data) : null;
+}
+
+export async function deleteProduct(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id);
+  return !error;
+}
+
+export async function uploadProductImage(file: File): Promise<string> {
+  const ext = file.name.split('.').pop();
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage
+    .from('product-images')
+    .upload(path, file);
+  if (error) throw error;
+  const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+  return data.publicUrl;
 }
