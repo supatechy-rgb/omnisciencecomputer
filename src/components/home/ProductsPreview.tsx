@@ -1,8 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
-import { getRecentProducts } from '@/lib/productStore';
+import { getRecentProducts, Product } from '@/lib/productStore';
 
 const container = {
   hidden: {},
@@ -15,7 +16,11 @@ const item = {
 };
 
 export default function ProductsPreview() {
-  const products = getRecentProducts(4);
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    getRecentProducts(4).then(setProducts);
+  }, []);
 
   if (products.length === 0) return null;
 

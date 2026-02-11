@@ -7,9 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { getProducts, addProduct, updateProduct, deleteProduct } from '@/lib/productStore';
-import { getTestimonials, addTestimonial, updateTestimonial, deleteTestimonial } from '@/lib/testimonialStore';
-import { Product, Testimonial } from '@/lib/types';
+import { getProducts, addProduct, updateProduct, deleteProduct, uploadProductImage, Product } from '@/lib/productStore';
+import { getTestimonials, addTestimonial, updateTestimonial, deleteTestimonial, Testimonial } from '@/lib/testimonialStore';
 import { LogOut, Plus, Pencil, Trash2, Upload, X, Package, MessageSquare, ArrowLeft } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
@@ -58,25 +57,13 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
 }
 
 /* ─── Multi Image Upload ─── */
-function MultiImageUpload({ images, onChange }: { images: string[]; onChange: (imgs: string[]) => void }) {
+function MultiImageUpload({ images, onChange, uploading, onUpload }: {
+  images: string[];
+  onChange: (imgs: string[]) => void;
+  uploading: boolean;
+  onUpload: (files: FileList) => void;
+}) {
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    Array.from(files).forEach((file) => {
-      if (file.size > 2 * 1024 * 1024) {
-        alert('Each image must be under 2MB');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onChange([...images, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-    e.target.value = '';
-  };
 
   const removeImage = (index: number) => {
     onChange(images.filter((_, i) => i !== index));
@@ -101,12 +88,20 @@ function MultiImageUpload({ images, onChange }: { images: string[]; onChange: (i
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-input bg-muted/30 text-muted-foreground hover:border-primary active:bg-muted/50 transition-colors"
+          disabled={uploading}
+          className="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-input bg-muted/30 text-muted-foreground hover:border-primary active:bg-muted/50 transition-colors disabled:opacity-50"
         >
-          <Plus className="h-5 w-5" />
+          {uploading ? '...' : <Plus className="h-5 w-5" />}
         </button>
       </div>
-      <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={(e) => e.target.files && onUpload(e.target.files)}
+      />
     </div>
   );
 }
@@ -127,6 +122,26 @@ function ProductForm({
   const [bonusPrice, setBonusPrice] = useState(initial?.bonusPrice?.toString() || '');
   const [status, setStatus] = useState<Product['status']>(initial?.status || 'available');
   const [images, setImages] = useState<string[]>(initial?.images || []);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (files: FileList) => {
+    setUploading(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Each image must be under 5MB');
+          continue;
+        }
+        const url = await uploadProductImage(file);
+        urls.push(url);
+      }
+      setImages((prev) => [...prev, ...urls]);
+    } catch (err) {
+      alert('Failed to upload image');
+    }
+    setUploading(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,7 +164,7 @@ function ProductForm({
         <h2 className="font-semibold text-foreground">{initial ? 'Edit Product' : 'Add Product'}</h2>
       </div>
       <form onSubmit={handleSubmit} className="p-4 space-y-4">
-        <MultiImageUpload images={images} onChange={setImages} />
+        <MultiImageUpload images={images} onChange={setImages} uploading={uploading} onUpload={handleUpload} />
         <div>
           <Label>Product Title</Label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={200} className="h-11" />
@@ -180,7 +195,7 @@ function ProductForm({
           </Select>
         </div>
         <div className="pt-2 pb-6">
-          <Button type="submit" className="w-full h-12 text-base">
+          <Button type="submit" className="w-full h-12 text-base" disabled={uploading}>
             {initial ? 'Save Changes' : 'Add Product'}
           </Button>
         </div>
@@ -252,15 +267,15 @@ export default function Admin() {
   const [addingTestimonial, setAddingTestimonial] = useState(false);
   const { toast } = useToast();
 
+  const refreshProducts = () => getProducts().then(setProducts);
+  const refreshTestimonials = () => getTestimonials().then(setTestimonials);
+
   useEffect(() => {
     if (authed) {
-      setProducts(getProducts());
-      setTestimonials(getTestimonials());
+      refreshProducts();
+      refreshTestimonials();
     }
   }, [authed]);
-
-  const refreshProducts = () => setProducts(getProducts());
-  const refreshTestimonials = () => setTestimonials(getTestimonials());
 
   const handleLogout = () => {
     sessionStorage.removeItem('omniscience-admin');
@@ -270,43 +285,43 @@ export default function Admin() {
   if (!authed) return <AdminLogin onLogin={() => setAuthed(true)} />;
 
   /* Product handlers */
-  const handleAddProduct = (data: Omit<Product, 'id' | 'createdAt'>) => {
-    addProduct(data);
+  const handleAddProduct = async (data: Omit<Product, 'id' | 'createdAt'>) => {
+    await addProduct(data);
     setAddingProduct(false);
     refreshProducts();
     toast({ title: 'Product added!' });
   };
-  const handleUpdateProduct = (data: Omit<Product, 'id' | 'createdAt'>) => {
+  const handleUpdateProduct = async (data: Omit<Product, 'id' | 'createdAt'>) => {
     if (!editingProduct) return;
-    updateProduct(editingProduct.id, data);
+    await updateProduct(editingProduct.id, data);
     setEditingProduct(null);
     refreshProducts();
     toast({ title: 'Product updated!' });
   };
-  const handleDeleteProduct = (id: string) => {
+  const handleDeleteProduct = async (id: string) => {
     if (!confirm('Delete this product?')) return;
-    deleteProduct(id);
+    await deleteProduct(id);
     refreshProducts();
     toast({ title: 'Product deleted.' });
   };
 
   /* Testimonial handlers */
-  const handleAddTestimonial = (data: Omit<Testimonial, 'id'>) => {
-    addTestimonial(data);
+  const handleAddTestimonial = async (data: Omit<Testimonial, 'id'>) => {
+    await addTestimonial(data);
     setAddingTestimonial(false);
     refreshTestimonials();
     toast({ title: 'Testimonial added!' });
   };
-  const handleUpdateTestimonial = (data: Omit<Testimonial, 'id'>) => {
+  const handleUpdateTestimonial = async (data: Omit<Testimonial, 'id'>) => {
     if (!editingTestimonial) return;
-    updateTestimonial(editingTestimonial.id, data);
+    await updateTestimonial(editingTestimonial.id, data);
     setEditingTestimonial(null);
     refreshTestimonials();
     toast({ title: 'Testimonial updated!' });
   };
-  const handleDeleteTestimonial = (id: string) => {
+  const handleDeleteTestimonial = async (id: string) => {
     if (!confirm('Delete this testimonial?')) return;
-    deleteTestimonial(id);
+    await deleteTestimonial(id);
     refreshTestimonials();
     toast({ title: 'Testimonial deleted.' });
   };

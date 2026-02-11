@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
-import { getTestimonials } from '@/lib/testimonialStore';
+import { getTestimonials, Testimonial } from '@/lib/testimonialStore';
 
 const container = {
   hidden: {},
@@ -13,7 +14,11 @@ const item = {
 };
 
 export default function TestimonialsSection() {
-  const testimonials = getTestimonials();
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    getTestimonials().then(setTestimonials);
+  }, []);
 
   if (testimonials.length === 0) return null;
 

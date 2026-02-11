@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ChevronLeft, ChevronRight, MessageCircle, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getProductById } from '@/lib/productStore';
+import { getProductById, Product } from '@/lib/productStore';
 
 function formatPrice(price: number) {
   return '₦' + price.toLocaleString();
@@ -12,8 +12,21 @@ function formatPrice(price: number) {
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
-  const product = id ? getProductById(id) : null;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const [imageIndex, setImageIndex] = useState(0);
+
+  useEffect(() => {
+    if (id) {
+      getProductById(id).then((p) => { setProduct(p); setLoading(false); });
+    } else {
+      setLoading(false);
+    }
+  }, [id]);
+
+  if (loading) {
+    return <div className="section-padding text-center"><p className="text-muted-foreground">Loading...</p></div>;
+  }
 
   if (!product) {
     return (
