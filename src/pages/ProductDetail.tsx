@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, MessageCircle, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import BuyProductModal from '@/components/BuyProductModal';
 import { getProductById } from '@/lib/productStore';
 
 function formatPrice(price: number) {
@@ -15,7 +14,6 @@ export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const product = id ? getProductById(id) : null;
   const [imageIndex, setImageIndex] = useState(0);
-  const [buyOpen, setBuyOpen] = useState(false);
 
   if (!product) {
     return (
@@ -65,7 +63,6 @@ export default function ProductDetail() {
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
-                  {/* Counter */}
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 text-foreground text-xs font-medium px-3 py-1 rounded-full">
                     {imageIndex + 1} / {images.length}
                   </div>
@@ -107,19 +104,26 @@ export default function ProductDetail() {
             </div>
             <p className="mt-6 text-muted-foreground leading-relaxed">{product.description}</p>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 max-w-sm">
+            <div className="mt-8 flex flex-col gap-3">
               <Button
                 size="lg"
-                className="flex-1"
+                className="w-full h-14 text-base font-semibold"
                 disabled={unavailable}
-                onClick={() => setBuyOpen(true)}
+                asChild={!unavailable}
               >
-                {unavailable ? 'Currently Unavailable' : 'Buy Product'}
+                {unavailable ? (
+                  <span>Currently Unavailable</span>
+                ) : (
+                  <Link to={`/products/${id}/buy`}>
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    Buy Product
+                  </Link>
+                )}
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="flex-1"
+                className="w-full h-14 text-base font-semibold"
                 asChild
               >
                 <a
@@ -127,7 +131,7 @@ export default function ProductDetail() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <MessageCircle className="h-4 w-4 mr-2" />
+                  <MessageCircle className="h-5 w-5 mr-2" />
                   Contact Vendor
                 </a>
               </Button>
@@ -135,8 +139,6 @@ export default function ProductDetail() {
           </div>
         </motion.div>
       </div>
-
-      <BuyProductModal product={product} open={buyOpen} onOpenChange={setBuyOpen} />
     </section>
   );
 }
