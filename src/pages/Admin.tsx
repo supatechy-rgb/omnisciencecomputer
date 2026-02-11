@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,46 +57,56 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
   );
 }
 
-/* ─── Image Upload ─── */
-function ImageUpload({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+/* ─── Multi Image Upload ─── */
+function MultiImageUpload({ images, onChange }: { images: string[]; onChange: (imgs: string[]) => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Image must be under 2MB');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onloadend = () => onChange(reader.result as string);
-    reader.readAsDataURL(file);
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Each image must be under 2MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onChange([...images, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    onChange(images.filter((_, i) => i !== index));
   };
 
   return (
     <div>
-      <Label>Product Image</Label>
-      {value ? (
-        <div className="relative mt-2 inline-block">
-          <img src={value} alt="Preview" className="h-28 w-28 rounded-xl object-cover border bg-muted" />
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
-          >
-            <X className="h-3 w-3" />
-          </button>
-        </div>
-      ) : (
+      <Label>Product Images</Label>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {images.map((img, i) => (
+          <div key={i} className="relative">
+            <img src={img} alt={`Preview ${i + 1}`} className="h-20 w-20 rounded-xl object-cover border bg-muted" />
+            <button
+              type="button"
+              onClick={() => removeImage(i)}
+              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        ))}
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="mt-2 flex h-28 w-full items-center justify-center rounded-xl border-2 border-dashed border-input bg-muted/30 text-muted-foreground text-sm hover:border-primary active:bg-muted/50 transition-colors"
+          className="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-input bg-muted/30 text-muted-foreground hover:border-primary active:bg-muted/50 transition-colors"
         >
-          <Upload className="h-5 w-5 mr-2" /> Upload Image
+          <Plus className="h-5 w-5" />
         </button>
-      )}
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+      </div>
+      <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
     </div>
   );
 }
@@ -115,7 +126,7 @@ function ProductForm({
   const [price, setPrice] = useState(initial?.price?.toString() || '');
   const [bonusPrice, setBonusPrice] = useState(initial?.bonusPrice?.toString() || '');
   const [status, setStatus] = useState<Product['status']>(initial?.status || 'available');
-  const [image, setImage] = useState(initial?.images?.[0] || '');
+  const [images, setImages] = useState<string[]>(initial?.images || []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,7 +136,7 @@ function ProductForm({
       price: Number(price),
       bonusPrice: bonusPrice ? Number(bonusPrice) : undefined,
       status,
-      images: image ? [image] : [],
+      images,
     });
   };
 
@@ -138,7 +149,7 @@ function ProductForm({
         <h2 className="font-semibold text-foreground">{initial ? 'Edit Product' : 'Add Product'}</h2>
       </div>
       <form onSubmit={handleSubmit} className="p-4 space-y-4">
-        <ImageUpload value={image} onChange={setImage} />
+        <MultiImageUpload images={images} onChange={setImages} />
         <div>
           <Label>Product Title</Label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={200} className="h-11" />
@@ -230,6 +241,7 @@ function TestimonialForm({
 
 /* ─── Admin Dashboard ─── */
 export default function Admin() {
+  const navigate = useNavigate();
   const [authed, setAuthed] = useState(() => sessionStorage.getItem('omniscience-admin') === 'true');
   const [tab, setTab] = useState<'products' | 'testimonials'>('products');
   const [products, setProducts] = useState<Product[]>([]);
@@ -252,7 +264,7 @@ export default function Admin() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('omniscience-admin');
-    setAuthed(false);
+    navigate('/');
   };
 
   if (!authed) return <AdminLogin onLogin={() => setAuthed(true)} />;
@@ -344,7 +356,12 @@ export default function Admin() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-card-foreground text-sm truncate">{p.title}</p>
                     <p className="text-sm text-primary font-bold">₦{p.price.toLocaleString()}</p>
-                    <Badge className={`mt-1 text-[10px] px-2 py-0 ${statusColor(p.status)}`}>{p.status}</Badge>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge className={`text-[10px] px-2 py-0 ${statusColor(p.status)}`}>{p.status}</Badge>
+                      {p.images.length > 1 && (
+                        <span className="text-[10px] text-muted-foreground">{p.images.length} imgs</span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex flex-col gap-1 shrink-0">
                     <button onClick={() => setEditingProduct(p)} className="p-2 rounded-lg hover:bg-muted active:bg-muted transition">
