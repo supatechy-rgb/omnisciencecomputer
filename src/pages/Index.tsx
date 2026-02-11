@@ -2,6 +2,7 @@ import HeroSection from '@/components/home/HeroSection';
 import StatsSection from '@/components/home/StatsSection';
 import ServicesPreview from '@/components/home/ServicesPreview';
 import ProductsPreview from '@/components/home/ProductsPreview';
+import PartnersSection from '@/components/home/PartnersSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import FAQSection from '@/components/home/FAQSection';
 import CTASection from '@/components/home/CTASection';
@@ -13,6 +14,7 @@ export default function Index() {
       <StatsSection />
       <ServicesPreview />
       <ProductsPreview />
+      <PartnersSection />
       <TestimonialsSection />
       <FAQSection />
       <CTASection />
