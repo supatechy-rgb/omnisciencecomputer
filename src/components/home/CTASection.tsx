@@ -10,18 +10,18 @@ export default function CTASection() {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ type: 'spring', stiffness: 60 }}
+          transition={{ type: 'spring' as const, stiffness: 60 }}
           className="rounded-2xl bg-primary p-10 md:p-16 text-center text-primary-foreground relative overflow-hidden"
         >
           {/* Decorative floating shapes */}
           <motion.div
             animate={{ y: [-10, 10, -10], x: [-5, 5, -5] }}
-            transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
+            transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' as const }}
             className="absolute top-6 left-8 h-16 w-16 rounded-full bg-primary-foreground/10 hidden md:block"
           />
           <motion.div
             animate={{ y: [10, -10, 10], x: [5, -5, 5] }}
-            transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
+            transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' as const }}
             className="absolute bottom-8 right-12 h-24 w-24 rounded-full bg-primary-foreground/5 hidden md:block"
           />
 
@@ -39,7 +39,11 @@ export default function CTASection() {
             <Button asChild size="lg" variant="secondary" className="hover-scale">
               <Link to="/contact">Contact Us</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 hover-scale">
+            <Button
+              asChild
+              size="lg"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 hover-scale"
+            >
               <Link to="/products">Browse Products</Link>
             </Button>
           </motion.div>
