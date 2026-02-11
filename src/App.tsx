@@ -9,6 +9,7 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
+import BuyProduct from "./pages/BuyProduct";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
@@ -28,8 +29,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Admin - no header/footer */}
+          {/* Full-page routes - no header/footer */}
           <Route path="/admin" element={<Admin />} />
+          <Route path="/products/:id/buy" element={<BuyProduct />} />
           {/* All other pages with layout */}
           <Route path="/" element={<WithLayout><Index /></WithLayout>} />
           <Route path="/about" element={<WithLayout><About /></WithLayout>} />
