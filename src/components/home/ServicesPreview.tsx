@@ -1,13 +1,16 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Laptop, Printer, Camera, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import serviceLaptop from '@/assets/service-laptop.jpg';
+import servicePrinter from '@/assets/service-printer.jpg';
+import serviceCctv from '@/assets/service-cctv.jpg';
+import serviceAccessories from '@/assets/service-accessories.jpg';
 
 const services = [
-  { icon: Laptop, title: 'Laptop & Computer Repair', desc: 'Expert diagnosis and repair for all laptop and desktop brands.' },
-  { icon: Printer, title: 'Printer Repair & Maintenance', desc: 'Professional printer servicing, maintenance, and part replacement.' },
-  { icon: Camera, title: 'CCTV Installation', desc: 'Full security camera setup for homes, offices, and businesses.' },
-  { icon: ShoppingBag, title: 'Sales & Accessories', desc: 'Quality laptops, printers, and accessories at competitive prices.' },
+  { image: serviceLaptop, title: 'Laptop & Computer Repair', desc: 'Expert diagnosis and repair for all laptop and desktop brands.' },
+  { image: servicePrinter, title: 'Printer Repair & Maintenance', desc: 'Professional printer servicing, maintenance, and part replacement.' },
+  { image: serviceCctv, title: 'CCTV Installation', desc: 'Full security camera setup for homes, offices, and businesses.' },
+  { image: serviceAccessories, title: 'Sales & Accessories', desc: 'Quality laptops, printers, and accessories at competitive prices.' },
 ];
 
 const container = {
@@ -44,18 +47,21 @@ export default function ServicesPreview() {
             <motion.div
               key={s.title}
               variants={item}
-              whileHover={{ y: -6, boxShadow: '0 12px 40px -15px hsl(340 82% 52% / 0.2)' }}
-              className="rounded-xl border bg-card p-6 text-center transition-colors cursor-default"
+              whileHover={{ y: -6 }}
+              className="rounded-xl border bg-card overflow-hidden transition-shadow hover:shadow-lg group cursor-default"
             >
-              <motion.div
-                whileHover={{ scale: 1.15, rotate: -5 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-                className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-secondary"
-              >
-                <s.icon className="h-7 w-7 text-primary" />
-              </motion.div>
-              <h3 className="font-semibold text-card-foreground">{s.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              <div className="aspect-[4/3] overflow-hidden bg-muted">
+                <img
+                  src={s.image}
+                  alt={s.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
+              </div>
+              <div className="p-5 text-center">
+                <h3 className="font-semibold text-card-foreground">{s.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              </div>
             </motion.div>
           ))}
         </motion.div>
