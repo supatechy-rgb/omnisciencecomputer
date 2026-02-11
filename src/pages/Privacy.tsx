@@ -1,7 +1,31 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+const ADMIN_USER = 'Admin';
+const ADMIN_PASS = 'Passomni@1234@scienceword';
 
 export default function Privacy() {
+  const navigate = useNavigate();
+  const [showLogin, setShowLogin] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === ADMIN_USER && password === ADMIN_PASS) {
+      sessionStorage.setItem('omniscience-admin', 'true');
+      navigate('/admin');
+    } else {
+      setError('Invalid credentials');
+    }
+  };
+
   return (
     <section className="section-padding">
       <div className="container mx-auto px-4 max-w-3xl">
@@ -28,11 +52,35 @@ export default function Privacy() {
 
         {/* Hidden admin access */}
         <div className="mt-20 text-center">
-          <Link to="/admin" className="inline-flex items-center gap-1 text-xs text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors">
+          <button
+            onClick={() => { setShowLogin(true); setError(''); setUsername(''); setPassword(''); }}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors"
+          >
             <Lock className="h-3 w-3" /> Admin
-          </Link>
+          </button>
         </div>
       </div>
+
+      {/* Admin login dialog */}
+      <Dialog open={showLogin} onOpenChange={setShowLogin}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Admin Login</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <Label htmlFor="priv-user">Username</Label>
+              <Input id="priv-user" value={username} onChange={(e) => setUsername(e.target.value)} required className="h-11" />
+            </div>
+            <div>
+              <Label htmlFor="priv-pass">Password</Label>
+              <Input id="priv-pass" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11" />
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            <Button type="submit" className="w-full h-11">Login</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
