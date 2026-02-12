@@ -52,15 +52,15 @@ export default function ProductDetail() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid gap-8 lg:grid-cols-2"
+          className="grid gap-6 md:gap-8 md:grid-cols-2"
         >
           {/* Image slider */}
           <div>
-            <div className="relative overflow-hidden rounded-xl bg-muted aspect-square">
+            <div className="relative overflow-hidden rounded-xl bg-muted aspect-square max-h-[500px]">
               <img
                 src={images[imageIndex]}
                 alt={product.title}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain bg-muted"
               />
               {images.length > 1 && (
                 <>
@@ -88,14 +88,14 @@ export default function ProductDetail() {
               )}
             </div>
 
-            {/* Thumbnail strip */}
+          {/* Thumbnail strip */}
             {images.length > 1 && (
-              <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+              <div className="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-thin">
                 {images.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setImageIndex(i)}
-                    className={`shrink-0 h-16 w-16 rounded-lg overflow-hidden border-2 transition ${
+                    className={`shrink-0 h-14 w-14 sm:h-16 sm:w-16 rounded-lg overflow-hidden border-2 transition ${
                       i === imageIndex ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
