@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, Mail, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import logo from '@/assets/logo.png';
 
 const navLinks = [
@@ -86,20 +85,10 @@ function Navbar() {
 }
 
 function Footer() {
-  const { toast } = useToast();
-  const [email, setEmail] = useState('');
-
-  const handleNewsletter = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    toast({ title: 'Subscribed!', description: 'Thank you for subscribing to our newsletter.' });
-    setEmail('');
-  };
-
   return (
     <footer className="border-t bg-foreground text-background">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-3">
           {/* Brand */}
           <div>
             <h3 className="text-lg font-bold mb-2">
@@ -138,23 +127,6 @@ function Footer() {
                 <span>8, Oremeji Street, Ikeja, C/O Devine Favour Computer</span>
               </li>
             </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4 className="font-semibold mb-3">Newsletter</h4>
-            <p className="text-sm opacity-70 mb-3">Stay updated with our latest products and offers.</p>
-            <form onSubmit={handleNewsletter} className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 rounded-md bg-background/10 border border-background/20 px-3 py-2 text-sm text-background placeholder:text-background/50 focus:outline-none focus:ring-1 focus:ring-primary"
-                required
-              />
-              <Button type="submit" size="sm">Subscribe</Button>
-            </form>
           </div>
         </div>
 

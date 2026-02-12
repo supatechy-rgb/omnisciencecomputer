@@ -21,15 +21,25 @@ export default function Contact() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Replace with Formspree endpoint
-    setTimeout(() => {
-      setLoading(false);
-      toast({ title: 'Message Sent!', description: 'Thank you for reaching out. We will get back to you shortly.' });
-      (e.target as HTMLFormElement).reset();
-    }, 800);
+    try {
+      const res = await fetch('https://formspree.io/f/xpqjprdd', {
+        method: 'POST',
+        body: new FormData(e.currentTarget),
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        toast({ title: 'Message Sent!', description: 'Thank you for reaching out. We will get back to you shortly.' });
+        (e.target as HTMLFormElement).reset();
+      } else {
+        toast({ title: 'Failed to send', description: 'Please try again or contact us via phone.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Network error', description: 'Please check your connection and try again.', variant: 'destructive' });
+    }
+    setLoading(false);
   };
 
   return (
