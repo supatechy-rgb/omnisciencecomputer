@@ -50,18 +50,25 @@ export default function BuyProduct() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitting(true);
-
-    // TODO: Replace with Formspree endpoint
-    // const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', { method: 'POST', body: new FormData(e.currentTarget) });
-
-    setTimeout(() => {
-      setSubmitting(false);
-      toast({
-        title: 'Order Submitted!',
-        description: 'Thank you for your order. Our team will reach out to you shortly.',
+    try {
+      const res = await fetch('https://formspree.io/f/xreapkqy', {
+        method: 'POST',
+        body: new FormData(e.currentTarget),
+        headers: { Accept: 'application/json' },
       });
-      navigate(`/products/${id}`);
-    }, 800);
+      if (res.ok) {
+        toast({
+          title: 'Order Submitted!',
+          description: 'Thank you for your order. Our team will reach out to you shortly.',
+        });
+        navigate(`/products/${id}`);
+      } else {
+        toast({ title: 'Submission failed', description: 'Please try again or contact us via WhatsApp.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Network error', description: 'Please check your connection and try again.', variant: 'destructive' });
+    }
+    setSubmitting(false);
   };
 
   return (
