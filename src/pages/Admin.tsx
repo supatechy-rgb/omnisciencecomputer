@@ -57,6 +57,8 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
 }
 
 /* ─── Multi Image Upload ─── */
+const MAX_IMAGES = 5;
+
 function MultiImageUpload({ images, onChange, uploading, onUpload }: {
   images: string[];
   onChange: (imgs: string[]) => void;
@@ -64,6 +66,7 @@ function MultiImageUpload({ images, onChange, uploading, onUpload }: {
   onUpload: (files: FileList) => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const remaining = MAX_IMAGES - images.length;
 
   const removeImage = (index: number) => {
     onChange(images.filter((_, i) => i !== index));
@@ -71,7 +74,7 @@ function MultiImageUpload({ images, onChange, uploading, onUpload }: {
 
   return (
     <div>
-      <Label>Product Images</Label>
+      <Label>Product Images ({images.length}/{MAX_IMAGES})</Label>
       <div className="mt-2 flex flex-wrap gap-2">
         {images.map((img, i) => (
           <div key={i} className="relative">
@@ -85,15 +88,20 @@ function MultiImageUpload({ images, onChange, uploading, onUpload }: {
             </button>
           </div>
         ))}
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading}
-          className="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-input bg-muted/30 text-muted-foreground hover:border-primary active:bg-muted/50 transition-colors disabled:opacity-50"
-        >
-          {uploading ? '...' : <Plus className="h-5 w-5" />}
-        </button>
+        {remaining > 0 && (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="flex h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-input bg-muted/30 text-muted-foreground hover:border-primary active:bg-muted/50 transition-colors disabled:opacity-50"
+          >
+            {uploading ? '...' : <Plus className="h-5 w-5" />}
+          </button>
+        )}
       </div>
+      {remaining <= 0 && (
+        <p className="text-xs text-muted-foreground mt-1">Maximum of {MAX_IMAGES} images reached</p>
+      )}
       <input
         ref={fileRef}
         type="file"
@@ -125,10 +133,13 @@ function ProductForm({
   const [uploading, setUploading] = useState(false);
 
   const handleUpload = async (files: FileList) => {
+    const slotsLeft = MAX_IMAGES - images.length;
+    if (slotsLeft <= 0) return;
+    const filesToUpload = Array.from(files).slice(0, slotsLeft);
     setUploading(true);
     try {
       const urls: string[] = [];
-      for (const file of Array.from(files)) {
+      for (const file of filesToUpload) {
         if (file.size > 5 * 1024 * 1024) {
           alert('Each image must be under 5MB');
           continue;
@@ -136,7 +147,7 @@ function ProductForm({
         const url = await uploadProductImage(file);
         urls.push(url);
       }
-      setImages((prev) => [...prev, ...urls]);
+      setImages((prev) => [...prev, ...urls].slice(0, MAX_IMAGES));
     } catch (err) {
       alert('Failed to upload image');
     }
