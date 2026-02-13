@@ -27,7 +27,12 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build
+      - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || 'https://tnopcslcsqybfealeshj.supabase.co' }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRub3Bjc2xjc3F5YmZlYWxlc2hqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NDg0NDUsImV4cCI6MjA4NjQyNDQ0NX0.SLNwtNoR1pa60a2Arq8qEmKQXSUL-BCng-MHe9RN6dE' }}
+          VITE_SUPABASE_PROJECT_ID: ${{ vars.VITE_SUPABASE_PROJECT_ID || 'tnopcslcsqybfealeshj' }}
+        run: npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:
