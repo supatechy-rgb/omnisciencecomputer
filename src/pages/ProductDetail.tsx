@@ -60,7 +60,7 @@ export default function ProductDetail() {
               <img
                 src={images[imageIndex]}
                 alt={product.title}
-                className="h-full w-full object-contain bg-muted"
+                className="h-full w-full object-cover bg-muted"
               />
               {images.length > 1 && (
                 <>
